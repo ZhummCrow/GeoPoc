@@ -1,9 +1,9 @@
-from model import *
-from data import *
 import os,random,argparse,pickle
 from torch_geometric.loader import DataLoader
 from tqdm import tqdm
 import pandas as pd
+from data import *
+from model import *
 from feature_extraction.process_structure import get_pdb_xyz,process_dssp,match_dssp
 
 FOLDS=5
@@ -37,14 +37,17 @@ def extract_features(prot_dict,args,device):
     pdb_exist = 0
     embedding_exist = 0
     dssp_exist = 0
+    norm_embedding_exist = 0
     pdb_path = args.feature_path+"pdb/"
     embedding_path = args.feature_path+"embedding/"
     DSSP_path = args.feature_path+"DSSP/"
     for id in ID_list:
         if not os.path.exists(pdb_path + id + '.tensor'):
             pdb_exist = 1
-        if not os.path.exists(embedding_path + id + '.tensor'):
+        if not os.path.exists(embedding_path + id + '.pt'):
             embedding_exist = 1
+        if not os.path.exists(embedding_path + args.task +"/"+ id + '.tensor'):
+            norm_embedding_exist = 1
         if not os.path.exists(DSSP_path + id + '.tensor'):
             dssp_exist = 1
     
@@ -69,6 +72,7 @@ def extract_features(prot_dict,args,device):
         else:
             esm_cmd = "CUDA_VISIBLE_DEVICES=" + args.gpu + " " + esm_cmd
         os.system(esm_cmd + " | tee ./esm_emb_pred.log")
+    if norm_embedding_exist ==1:
         ESM_MIN_MAX = pickle.load(open("./feature_extraction/ESM_Min_Max.pkl",'rb'))
         MIN = ESM_MIN_MAX[f"{args.task}_Min"]
         MAX = ESM_MIN_MAX[f"{args.task}_Max"]
@@ -76,12 +80,12 @@ def extract_features(prot_dict,args,device):
             raw_esm = torch.load(f"{embedding_path}{ID}.pt")
             raw_esm = raw_esm['representations'][36].numpy()
             esm_emb = (raw_esm - MIN) / (MAX - MIN)
-            torch.save(torch.tensor(esm_emb, dtype = torch.float32), embedding_path + ID + '.tensor')
+            torch.save(torch.tensor(esm_emb, dtype = torch.float32), embedding_path + args.task + "/" + ID + '.tensor')
     if dssp_exist == 1:
         for i in tqdm(range(len(ID_list))):
             ID = ID_list[i]
             seq = seq_list[i]
-            os.system(f"./feature_extraction/mkdssp -i {pdb_path}{ID}.pdb -o ./Data/DSSP/{ID}.dssp")
+            os.system(f"./feature_extraction/mkdssp -i {pdb_path}{ID}.pdb -o {DSSP_path}{ID}.dssp")
             dssp_seq, dssp_matrix = process_dssp(f"{DSSP_path}{ID}.dssp")
             if dssp_seq != seq:
                 dssp_matrix = match_dssp(dssp_seq, dssp_matrix, seq)
@@ -132,10 +136,10 @@ def pred(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_path",type=str,default='../example/test.fasta')
-    parser.add_argument("--feature_path",type=str,default='../example/demo/')
-    parser.add_argument("--model_path",type=str,default='../model/')
-    parser.add_argument("--output_path",type=str,default='../example/result/')
+    parser.add_argument("-i", "--dataset_path",type=str,default='./example/test.fasta')
+    parser.add_argument("--feature_path",type=str,default='./example/demo/')
+    parser.add_argument("--model_path",type=str,default='./model/')
+    parser.add_argument("-o", "--output_path",type=str,default='./example/result/')
     parser.add_argument("--task",type=str,default='temp')
     parser.add_argument("--gpu",type=str,default='0')
     
