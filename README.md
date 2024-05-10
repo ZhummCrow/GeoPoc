@@ -31,15 +31,20 @@ Finally, install the remaining packages required by GPSite.
 
 # Run GeoPoc for prediction
 To run GeoPoc for prediction, use the following command:
+
 `python predict.py -i ./example/test.fasta -o ./example/result/ --task temp --gpu 0`
+
 In this command, `test.fasta` represents the input FASTA file containing the sequences to be predicted. The prediction will be performed on GPU with ID `0`. The results will be stored in the `./example/result/` directory as a `.csv` file, which contains the optimal condition predictions for each sequence.
 
 The `--task` parameter allows you to specify the task to predict. There are three options available: `temp` for predicting optimal temperature, `pH` for predicting optimal pH, and `salt` for predicting optimal salt concentration.
 
 # Dataset and model
 We provide the datasets and the  trained models here for those interrested in reproducing out paper.
+
 The trained GeoPoc models for protein optimal temperature, pH, and salt concentration prediction can be found under `./model/`.
+
 The organism with optimal culture condition data set is provided in `./datasets/species_optimal_conditions.csv`.
+
 The protein optimal condition data set used in this study are stored in `./datasets/` 
 
 
