@@ -17,7 +17,7 @@ GeoPoc is mainly based on the following packages:
 - sentencepiece 0.1.99
 - transformers 4.30.1
 
-# install and set uo GeoPoc
+# install and set up GeoPoc
 1. Clone this repository by `git clone https://github.com/ZhummCrow/GeoPoc.git`
 2. Install the packages required by GeoPoc. To use [ESMFold](https://github.com/facebookresearch/esm) model, specially you can install GeoPoc according to the following instructions.
 ```bash
