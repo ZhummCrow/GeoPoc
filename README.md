@@ -51,7 +51,7 @@ The protein optimal condition data set used in this study are stored in `./datas
 
 # Citation and contact
 Citation:
-preparing
+[Accurately predicting optimal conditions for microorganism proteins through geometric graph learning and language model](https://www.nature.com/articles/s42003-024-07436-3)
 
 Contact:
 Mingming Zhu (zhumm25@mail2.sysu.edu.cn)
